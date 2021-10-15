@@ -1,8 +1,23 @@
-const http = require('http')
-const app = require('./app')
+const express = require('express');
+const cors = require('cors');
 
-const port = process.env.PORT || 3000
+// routers imported!
+const productRouter = require('./api/routes/products');
+const orderRouter = require('./api/routes/orders');
 
-const server = http.createServer(app)
+const app = express();
+const port = process.env.port || 5000;
 
-server.listen(port);
+// middleware!
+app.use(cors());
+app.use(express.json());
+
+// routes!
+app.use('/products',productRouter);
+app.use('/orders', orderRouter);
+
+// listening at port 5000!
+app.listen(port, () => {
+    console.log(`Server running at port: ${port}`);
+})
+
