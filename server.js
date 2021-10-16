@@ -13,7 +13,7 @@ const uri = require('./config');
 const app = express();
 const port = process.env.port || 5000;
 
-// mongoose connection!
+// mongoose connection checking!
 mongoose.connect(uri, () => {
     console.log('Connected to the database!');
 })

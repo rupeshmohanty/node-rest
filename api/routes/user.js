@@ -5,6 +5,7 @@ const md5 = require('md5');
 // model import!
 let User = require('../../models/user.model');
 
+// to get the user details!
 router.get('/:id',(req,res) => {
     const id = req.params.id;
     
@@ -31,6 +32,7 @@ router.get('/:id',(req,res) => {
     .catch(err => console.log(err));
 });
 
+// register an user!
 router.post('/register',(req,res) => {
     const { email,username,password } = req.body;
     var errorCount = 0;
@@ -62,7 +64,7 @@ router.post('/register',(req,res) => {
             message: 'There are some errors with the data you entered!'
         })
     } else {
-        User.findOne({email: email})
+        User.findOne({email: email}) // SELECT * FROM WHERE `email` = '$email';
         .then(user => {
             if(user) {
                 res.json({
@@ -79,9 +81,10 @@ router.post('/register',(req,res) => {
                 // hashing password!
                 const hashedPassword = md5(password);
 
+                // change newuser password to hashedpassword!
                 newUser.password = hashedPassword;
 
-                newUser.save()
+                newUser.save() // --> INSERT in sql!
                 .then(() => {
                     res.json({
                         status: true,
@@ -94,6 +97,7 @@ router.post('/register',(req,res) => {
     }
 })
 
+// login user!
 router.post('/login',(req,res) => {
     const { email, password } = req.body;
     var errorCount  = 0;
@@ -109,9 +113,9 @@ router.post('/login',(req,res) => {
     // check if user exists!
     User.findOne({email: email})
     .then(user => {
-        const dbPassword = user.password;
-        const encPassword = md5(password);
         if(user) {
+            const dbPassword = user.password;
+            const encPassword = md5(password);
             if(dbPassword === encPassword) {
                 res.json({
                     status: true,
