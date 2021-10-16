@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const argon2 = require('argon2');
+const md5 = require('md5');
 
 // model import!
 let User = require('../../models/user.model');
 
-router.get('/',(req,res) => {
+router.get('/:id',(req,res) => {
+    const id = req.params.id;
     res.status(200).json({
-        message: 'You get user data!'
+        message: 'You get user data!',
+        userId: id
     })
 });
 
@@ -57,7 +59,7 @@ router.post('/register',(req,res) => {
                 })
 
                 // hashing password!
-                const hashedPassword = await argon2.hash(password);
+                const hashedPassword = md5(password);
 
                 newUser.password = hashedPassword;
 
@@ -72,7 +74,45 @@ router.post('/register',(req,res) => {
             }
         }) 
     }
+})
 
+router.post('/login',(req,res) => {
+    const { email, password } = req.body;
+    var errorCount  = 0;
+
+    if(!email || !password) {
+        res.json({
+            status: false,
+            message: 'Please fill all the details!'
+        })
+        errorCount = errorCount + 1;
+    }
+
+    // check if user exists!
+    User.findOne({email: email})
+    .then(user => {
+        const dbPassword = user.password;
+        const encPassword = md5(password);
+        if(user) {
+            if(dbPassword === encPassword) {
+                res.json({
+                    status: true,
+                    message: 'Logged in succesfully!',
+                    userId: user.id
+                })
+            } else {
+                res.json({
+                    status: false,
+                    message: 'Password is invalid'
+                })
+            }
+        } else {
+            res.json({
+                status: false,
+                message: 'No such user exists!'
+            })
+        }
+    })
 })
 
 module.exports = router;
