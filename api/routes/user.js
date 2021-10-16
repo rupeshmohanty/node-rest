@@ -7,10 +7,28 @@ let User = require('../../models/user.model');
 
 router.get('/:id',(req,res) => {
     const id = req.params.id;
-    res.status(200).json({
-        message: 'You get user data!',
-        userId: id
+    
+    User.findOne({_id: id})
+    .then(user => {
+        if(user) {
+            const userDetails = {
+                name: user.username,
+                email: user.email
+            }
+
+            res.json({
+                status: true,
+                message: 'User found',
+                user: userDetails
+            })
+        } else {
+            res.json({
+                status: false,
+                message: 'Unable to find user!'
+            })
+        }
     })
+    .catch(err => console.log(err));
 });
 
 router.post('/register',(req,res) => {
@@ -98,7 +116,7 @@ router.post('/login',(req,res) => {
                 res.json({
                     status: true,
                     message: 'Logged in succesfully!',
-                    userId: user.id
+                    userId: user._id
                 })
             } else {
                 res.json({
