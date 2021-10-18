@@ -137,4 +137,99 @@ router.post('/login',(req,res) => {
     })
 })
 
+
+// edit user details!
+router.get('/editUser/:id',(req,res) => {
+    const id = req.params.id;
+    const { email, username } = req.body;
+    var errorCount = 0;
+
+    // if fields are not present!
+    if(!email || !username ) {
+        res.json({
+            status: false,
+            message: 'Please fill all the details!'
+        })
+
+        errorCount = errorCount + 1;
+    }
+
+    // check if error is there!
+    if(errorCount > 0) {
+        res.json({
+            status: false,
+            message: 'Please check again!'
+        })
+    } else {
+        User.findOne({_id: id}) 
+        .then(user => {
+            if(user) {
+                user.email = email;
+                user.username = username;
+                user.save()
+                .then(() => {
+                    res.json({
+                        status: true,
+                        message: 'User details changed!'
+                    });
+                })
+                .catch(err => console.log(err))
+                
+            } else {
+                res.json({
+                    status: false,
+                    message: 'User does not exist!'
+                })
+            }
+        }).catch(err => console.log(err));  
+    }
+})
+
+//change user password
+router.get('/changePassword/:id', (req,res) => {
+    const id = req.params.id;
+    const {newPassword, oldPassword} = req.body;
+    var errorCount = 0;
+
+    //if fields are empty
+    if(!newPassword || !oldPassword){
+        res.json({
+            status: false,
+            message: 'Enter both passwords'
+        })
+        errorCount += 1;
+    }
+
+    //check for error
+    if(errorCount > 1){
+        res.json({
+            status: false,
+            message: "Enter again"
+        })
+    }else{
+        hashedNewPass = md5(newPassword);
+        hashedOldPass = md5(oldPassword);
+        User.findOne({id: id})
+        .then(user => {
+            if(hashedOldPass === user.password){
+                user.password = hashedNewPass;
+                user.save()
+                .then(() => {
+                    res.json({
+                        status: true,
+                        message: "User password changed!"
+                    })
+                })
+                .catch(err => console.log(err));
+            }else{
+                res.json({
+                    status: false,
+                    message: "Incorrect Password"
+                })
+            }
+        })
+        .catch(err => console.log(err));
+    }
+})
+
 module.exports = router;
