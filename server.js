@@ -3,9 +3,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 // routers imported!
-const productRouter = require('./api/routes/products');
-const orderRouter = require('./api/routes/orders');
 const userRouter = require('./api/routes/user');
+const reviewRouter = require('./api/routes/reviews');
 
 // get the uri for db connect!
 const uri = require('./config');
@@ -23,9 +22,8 @@ app.use(cors());
 app.use(express.json());
 
 // routes!
-app.use('/products',productRouter);
-app.use('/orders', orderRouter);
 app.use('/user',userRouter);
+app.use('/reviews',reviewRouter);
 
 // listening at port 5000!
 app.listen(port, () => {
