@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 // routers imported!
 const userRouter = require('./api/routes/user');
 const reviewRouter = require('./api/routes/reviews');
+const searchRouter = require('./api/routes/search');
 
 // get the uri for db connect!
 const uri = require('./config');
@@ -25,6 +26,7 @@ app.use(express.urlencoded({extended: false}));
 // routes!
 app.use('/user',userRouter);
 app.use('/reviews',reviewRouter);
+app.use('/search',searchRouter);
 
 // listening at port 5000!
 app.listen(port, () => {

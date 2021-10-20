@@ -30,33 +30,23 @@ router.post('/post-review',avatar.single('image'), (req,res) => {
         })
     }
     else{
-        Review.findOne({ name: name })
-        .then(review => {
-            if(review) {
-                res.json({
-                    status: false,
-                    message: 'Review already exists!'
-                })
-            } else {
-                const review = new Review({
-                    userId,
-                    name,
-                    brief,
-                    description,
-                    rating
-                })
-                review.image = req.file.buffer
-                review.save()
-                .then(() => {
-                    res.json({
-                        status: true,
-                        message: 'Posted review!'
-                    })
-                })
-                .catch(err => console.log(err))
-            }
+        
+        const review = new Review({
+            userId,
+            name,
+            brief,
+            description,
+            rating
         })
-        .catch(err => console.log(err));
+        review.image = req.file.buffer
+        review.save()
+        .then(() => {
+            res.json({
+                status: true,
+                message: 'Posted review!'
+            })
+        })
+        .catch(err => console.log(err))
     }
 },(err, req, res, next) => res.status(404).json({
     status: false,
