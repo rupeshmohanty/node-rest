@@ -23,6 +23,9 @@ const reviewSchema = new Schema({
     rating: {
         type: Number,
         required: true
+    },
+    image: {
+        type: Buffer
     }
 },{
     timestamps: true

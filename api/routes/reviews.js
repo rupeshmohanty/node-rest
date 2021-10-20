@@ -1,48 +1,67 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 
 // model import!
 let Review = require('../../models/review.model');
 
-// post a review
-router.post('/post-review',(req,res) => {
-    const { userId, name, brief, description, rating } = req.body;
+const storage = multer.memoryStorage()
 
-    if(!userId || !name || !brief || !description || !rating) {
+//upload image config
+const avatar = multer({
+    limits: {
+        fileSize: 2000000  //2MB default is 1Mb
+    },
+    fileFilter(req, file, cb){
+        if(!file.originalname.match(/\.(jpg|png|jpeg|webp|JPG|PNG|JPEG|WEBP)$/))
+        return cb(new Error('File format is incorrect'));
+        cb(undefined, true); //if there is no error
+    },
+    storage: storage 
+})
+
+// post a review
+router.post('/post-review',avatar.single('image'), (req,res) => {
+    const { userId, name, brief, description, rating } = req.body;
+    if(!userId || !name || !brief || !description || !rating || !req.file) {
         res.json({
             status: false,
             message: 'Please fill all the details!'
         })
     }
-
-    Review.findOne({ name: name })
-    .then(review => {
-        if(review) {
-            res.json({
-                status: false,
-                message: 'Review already exists!'
-            })
-        } else {
-            const review = new Review({
-                userId,
-                name,
-                brief,
-                description,
-                rating
-            })
-
-            review.save()
-            .then(() => {
+    else{
+        Review.findOne({ name: name })
+        .then(review => {
+            if(review) {
                 res.json({
-                    status: true,
-                    message: 'Posted review!'
+                    status: false,
+                    message: 'Review already exists!'
                 })
-            })
-            .catch(err => console.log(err))
-        }
-    })
-    .catch(err => console.log(err));
-})
+            } else {
+                const review = new Review({
+                    userId,
+                    name,
+                    brief,
+                    description,
+                    rating
+                })
+                review.image = req.file.buffer
+                review.save()
+                .then(() => {
+                    res.json({
+                        status: true,
+                        message: 'Posted review!'
+                    })
+                })
+                .catch(err => console.log(err))
+            }
+        })
+        .catch(err => console.log(err));
+    }
+},(err, req, res, next) => res.status(404).json({
+    status: false,
+    message: err.message
+}))
 
 // fetch all reviews for the user!
 router.get('/:id',(req,res) => {
@@ -60,7 +79,10 @@ router.get('/:id',(req,res) => {
 })
 
 // update the review!
-router.put('/:id',(req,res) => {
+router.put('/:id',avatar.single('image'),(req,res) => {
+    if(req.file){
+        req.body.image = req.file.buffer;
+    }
     Review.findOneAndUpdate({
         _id: req.params.id
     },req.body)
