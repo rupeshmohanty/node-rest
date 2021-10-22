@@ -6,22 +6,16 @@ let Review = require('../../models/review.model');
 router.get('/:location',(req,res) => {
     const location = req.params.location
 
-    Review.find({name: location})
-    .then(result => {
-        if(result) {
-            res.json({
-              status: true,
-              message: 'Reviews found!',
-              reviews: result  
-            })
-        } else {
-            res.json({
-                status: false,
-                message: 'No such location found'
-            })
+    Review.find({name: location}, (err,review) => {
+        if(err) {
+            console.log(err);
         }
+        res.json({
+            status: true,
+            message: 'Reviews found!',
+            reviews: review
+        })
     })
-    .catch(err => console.log(err));
-});
+}); 
 
 module.exports = router;
